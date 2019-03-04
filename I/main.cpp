@@ -6,7 +6,7 @@ using namespace std;
 
 struct type_color {
 	GLint r, g, b;
-	type_color() { r = 255; g = 255; b = 255; }
+	type_color() { r = 0; g = 0; b = 0; }
 	type_color(GLint _r, GLint _g, GLint _b) { r = _r, g = _g, b = _b; }
 };
 
@@ -16,55 +16,89 @@ struct type_point {
 	type_point(GLint _x, GLint _y) { x = _x; y = _y; }
 };
 
+struct type_primitive {
+	vector <type_point> points;
+	type_color color;
+	GLfloat angle = 0.f;
+	GLfloat scale = 1.f;
+	bool isFill = true;
+	int currentPoint = -1;
+};
+
 //-------------------------------------------------------------------------------------------
 
 GLint Width = 512, Height = 512;
 
+vector <type_primitive> primitives(1);
+
+int currentPrimitive = 0;
+
 type_point menuPoint;
-
-vector <vector <type_point>> primitives;
-vector <type_color>  primitivesColors;
-
-vector <type_point> currentPrimitives;
-type_color currentPrimitivesColor;
 
 //-------------------------------------------------------------------------------------------
 
 void Display(void) {
+
 	glClearColor(0.5, 0.5, 0.5, 1);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	//drawing all primitives' sets without current
+	//scale and rotate
+	//if (primitives.size() > 0 && primitives[currentPrimitive].points.size() > 0) {
+
+	//	glPushMatrix();
+	//	glTranslatef(Width / 2, Height / 2, 0);
+	//	glScalef(primitives[currentPrimitive].scale, primitives[currentPrimitive].scale, 0);
+	//	glTranslatef(-(Width / 2), -(Height / 2), 0);
+
+	//	glTranslatef(primitives[currentPrimitive].points[0].x, primitives[currentPrimitive].points[0].y, 0);
+	//	glRotatef(primitives[currentPrimitive].angle, 0, 0, 1);
+	//	glTranslatef(-(primitives[currentPrimitive].points[0].x), -(primitives[currentPrimitive].points[0].y), 0);
+	//}
+	
+	//drawing all primitives
 	for (int i = 0; i < primitives.size(); ++i) {
 
-		glColor3ub(primitivesColors[i].r, primitivesColors[i].g, primitivesColors[i].b);
-		glBegin(GL_TRIANGLE_STRIP);
-		for (int j = 0; j < primitives[i].size(); ++j) {
+		glColor3ub(primitives[i].color.r, primitives[i].color.g, primitives[i].color.b);
+		if (primitives[i].isFill) {
 
-			glVertex2i(primitives[i][j].x, primitives[i][j].y);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		} else {
+
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		}
+		glBegin(GL_TRIANGLE_STRIP);
+		for (int j = 0; j < primitives[i].points.size(); ++j) {
+
+			glVertex2i(primitives[i].points[j].x, primitives[i].points[j].y);
 		}
 		glEnd();
 	}
 
-	//drawing current primitives' set
-	glColor3ub(currentPrimitivesColor.r, currentPrimitivesColor.g, currentPrimitivesColor.b);
-	glBegin(GL_TRIANGLE_STRIP);
-	for (int i = 0; i < currentPrimitives.size(); ++i) {
+	//drawing contour of primitives
+	if (primitives.size() > 0) {
 
-		glVertex2i(currentPrimitives[i].x, currentPrimitives[i].y);
+		glPointSize(6);
+		glEnable(GL_POINT_SMOOTH);
+		glBegin(GL_POINTS);
+		glColor3ub(primitives[currentPrimitive].color.r + 50, primitives[currentPrimitive].color.g + 50, primitives[currentPrimitive].color.b + 50);
+		for (int i = 0; i < primitives[currentPrimitive].points.size(); ++i) {
+
+			glVertex2i(primitives[currentPrimitive].points[i].x, primitives[currentPrimitive].points[i].y);
+		}
+		glEnd();
+
+		if (primitives[currentPrimitive].currentPoint >= 0) {
+
+			glPointSize(10);
+			glEnable(GL_POINT_SMOOTH);
+			glBegin(GL_POINTS);
+			glColor3ub(primitives[currentPrimitive].color.r + 100, primitives[currentPrimitive].color.g + 100, primitives[currentPrimitive].color.b + 100);
+			glVertex2i(primitives[currentPrimitive].points[primitives[currentPrimitive].currentPoint].x,
+				primitives[currentPrimitive].points[primitives[currentPrimitive].currentPoint].y);
+			glEnd();
+		}
 	}
-	glEnd();
-
-	//drawing points of current primitives' set
-	glPointSize(10);
-	glEnable(GL_POINT_SMOOTH);
-	glBegin(GL_POINTS);
-	for (int i = 0; i < currentPrimitives.size(); ++i) {
-
-		glVertex2i(currentPrimitives[i].x, currentPrimitives[i].y);
-	}
-	glEnd();
-
+	//glPopMatrix();
 	glutSwapBuffers();
 }
 
@@ -85,61 +119,121 @@ void Reshape(GLint w, GLint h) {
 
 void Keyboard(unsigned char key, int x, int y) {
 
-	int n = currentPrimitives.size();
 	menuPoint.x = x;
 	menuPoint.y = y;
 
 	//RGB settings
-	if (key == 'r' || key == 'R') currentPrimitivesColor.r += 20;
-	if (key == 'g' || key == 'G') currentPrimitivesColor.g += 20;
-	if (key == 'b' || key == 'B') currentPrimitivesColor.b += 20;
+	if (key == 'r' || key == 'R')
+		primitives[currentPrimitive].color.r += 20;
+	if (key == 'g' || key == 'G')
+		primitives[currentPrimitive].color.g += 20;
+	if (key == 'b' || key == 'B')
+		primitives[currentPrimitive].color.b += 20;
 
-	//coordinates settings
-	if (key == 'w' || key == 'W') for (int i = 0; i < n; i++) currentPrimitives[i].y += 20;
-	if (key == 's' || key == 'S') for (int i = 0; i < n; i++) currentPrimitives[i].y -= 20;
-	if (key == 'a' || key == 'A') for (int i = 0; i < n; i++) currentPrimitives[i].x -= 20;
-	if (key == 'd' || key == 'D') for (int i = 0; i < n; i++) currentPrimitives[i].x += 20;
+	//fill mode
+	if (key == 'm' || key == 'M')
+		primitives[currentPrimitive].isFill = !primitives[currentPrimitive].isFill;
 
-	//deleting all primitives' set
+	//primitive coordinates settings
+	if (key == 'w' || key == 'W')
+		for (int i = 0; i < primitives[currentPrimitive].points.size(); i++)
+			primitives[currentPrimitive].points[i].y += 20;
+	if (key == 's' || key == 'S') 
+		for (int i = 0; i < primitives[currentPrimitive].points.size(); i++)
+			primitives[currentPrimitive].points[i].y -= 20;
+	if (key == 'd' || key == 'D') 
+		for (int i = 0; i < primitives[currentPrimitive].points.size(); i++)
+			primitives[currentPrimitive].points[i].x += 20;
+	if (key == 'a' || key == 'A')
+		for (int i = 0; i < primitives[currentPrimitive].points.size(); i++)
+			primitives[currentPrimitive].points[i].x -= 20;
+
+	//point coordinates settings
+	if (key == 'i' || key == 'I')
+		primitives[currentPrimitive].points[primitives[currentPrimitive].currentPoint].y += 20;
+	if (key == 'k' || key == 'K')
+		primitives[currentPrimitive].points[primitives[currentPrimitive].currentPoint].y -= 20;
+	if (key == 'l' || key == 'L:')
+		primitives[currentPrimitive].points[primitives[currentPrimitive].currentPoint].x += 20;
+	if (key == 'j' || key == 'J')
+		primitives[currentPrimitive].points[primitives[currentPrimitive].currentPoint].x -= 20;
+
+	//scale down
+	if (key == '[' || key == '{') {
+
+		primitives[currentPrimitive].scale -= 0.1;
+	}
+	//scale up
+	if (key == ']' || key == '}') {
+
+		primitives[currentPrimitive].scale += 0.1;
+	}
+	//angle down
+	if (key == ',' || key == '<') {
+
+		primitives[currentPrimitive].angle -= 5;
+	}
+	//angle up
+	if (key == '.' || key == '>"') {
+
+		primitives[currentPrimitive].angle += 5;
+	}
+
+	//deleting current primitive
 	if (key == 'z' || key == 'Z') {
 
-		if (!currentPrimitives.empty()) {
+		if (primitives.size() > 0) {
 
-			currentPrimitives.clear();
-			currentPrimitivesColor.r = 255;
-			currentPrimitivesColor.g = 255;
-			currentPrimitivesColor.b = 255;
-
-		} else if (!primitives.empty()) {
-
-			for (int i = 0; i < primitives[primitives.size() - 1].size(); ++i) {
-
-				currentPrimitives.push_back(primitives[primitives.size() - 1][i]);
-				currentPrimitivesColor.r = primitivesColors[primitives.size() - 1].r;
-				currentPrimitivesColor.g = primitivesColors[primitives.size() - 1].g;
-				currentPrimitivesColor.b = primitivesColors[primitives.size() - 1].b;
-			}
-			primitives.pop_back();
-			primitivesColors.pop_back();
+			primitives.erase(primitives.begin() + currentPrimitive);
 		}
+
+		if (currentPrimitive != 0)
+			currentPrimitive--;
 	}
 
 	//deleting last point
 	if (key == 'x' || key == 'X') {
 
-		if (!currentPrimitives.empty())
-			currentPrimitives.pop_back();
+		if (!primitives[currentPrimitive].points.empty()) {
+
+			primitives[currentPrimitive].points.pop_back();
+			primitives[currentPrimitive].currentPoint--;
+		}
 	}
 
-	//anchor current primitives' set
+	//previous point
+	if (key == 'u' || key == 'U') {
+
+		if (primitives[currentPrimitive].currentPoint != 0)
+			primitives[currentPrimitive].currentPoint--;
+	}
+
+	//next point
+	if (key == 'o' || key == 'O') {
+
+		if (primitives[currentPrimitive].currentPoint != primitives[currentPrimitive].points.size() - 1)
+			primitives[currentPrimitive].currentPoint++;
+	}
+
+	//previous primitive
+	if (key == 'q' || key == 'Q') {
+
+		if (currentPrimitive != 0)
+			currentPrimitive--;
+	}
+
+	//next primitive
+	if (key == 'e' || key == 'E') {
+
+		if (currentPrimitive != primitives.size() - 1)
+			currentPrimitive++;
+	}
+
+	//anchor current set of primitives
 	if (key == ' ') {
 
-		primitives.push_back(currentPrimitives);
-		primitivesColors.push_back(currentPrimitivesColor);
-		currentPrimitivesColor.r = 255;
-		currentPrimitivesColor.g = 255;
-		currentPrimitivesColor.b = 255;
-		currentPrimitives.clear();
+		primitives.resize(primitives.size() + 1);
+		currentPrimitive++;
 	}
 
 	glutPostRedisplay();
@@ -157,8 +251,12 @@ void Mouse(int button, int state, int x, int y) {
 	//adding point
 	if (button == GLUT_LEFT_BUTTON) {
 
+		if (primitives.size() == 0)
+			primitives.resize(1);
+
 		type_point p(x, Height - y);
-		currentPrimitives.push_back(p);
+		primitives[currentPrimitive].points.push_back(p);
+		primitives[currentPrimitive].currentPoint++;
 	}
 }
 
