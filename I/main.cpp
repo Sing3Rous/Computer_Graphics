@@ -1,6 +1,12 @@
+#define GLM_ENABLE_EXPERIMENTAL
+
+#include <glm/glm.hpp>
+#include <glm/gtx/matrix_transform_2d.hpp>
 #include <gl/freeglut.h>
 #include <vector>
+
 using namespace std;
+using namespace glm;
 
 //-------------------------------------------------------------------------------------------
 
@@ -19,8 +25,6 @@ struct type_point {
 struct type_primitive {
 	vector <type_point> points;
 	type_color color;
-	GLfloat angle = 0.f;
-	GLfloat scale = 1.f;
 	bool isFill = true;
 	int currentPoint = -1;
 };
@@ -42,19 +46,6 @@ void Display(void) {
 	glClearColor(0.5, 0.5, 0.5, 1);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	//scale and rotate
-	//if (primitives.size() > 0 && primitives[currentPrimitive].points.size() > 0) {
-
-	//	glPushMatrix();
-	//	glTranslatef(Width / 2, Height / 2, 0);
-	//	glScalef(primitives[currentPrimitive].scale, primitives[currentPrimitive].scale, 0);
-	//	glTranslatef(-(Width / 2), -(Height / 2), 0);
-
-	//	glTranslatef(primitives[currentPrimitive].points[0].x, primitives[currentPrimitive].points[0].y, 0);
-	//	glRotatef(primitives[currentPrimitive].angle, 0, 0, 1);
-	//	glTranslatef(-(primitives[currentPrimitive].points[0].x), -(primitives[currentPrimitive].points[0].y), 0);
-	//}
-	
 	//drawing all primitives
 	for (int i = 0; i < primitives.size(); ++i) {
 
@@ -80,7 +71,8 @@ void Display(void) {
 		glPointSize(6);
 		glEnable(GL_POINT_SMOOTH);
 		glBegin(GL_POINTS);
-		glColor3ub(primitives[currentPrimitive].color.r + 50, primitives[currentPrimitive].color.g + 50, primitives[currentPrimitive].color.b + 50);
+		glColor3ub(primitives[currentPrimitive].color.r + 50, primitives[currentPrimitive].color.g + 50,
+			primitives[currentPrimitive].color.b + 50);
 		for (int i = 0; i < primitives[currentPrimitive].points.size(); ++i) {
 
 			glVertex2i(primitives[currentPrimitive].points[i].x, primitives[currentPrimitive].points[i].y);
@@ -92,13 +84,14 @@ void Display(void) {
 			glPointSize(10);
 			glEnable(GL_POINT_SMOOTH);
 			glBegin(GL_POINTS);
-			glColor3ub(primitives[currentPrimitive].color.r + 100, primitives[currentPrimitive].color.g + 100, primitives[currentPrimitive].color.b + 100);
+			glColor3ub(primitives[currentPrimitive].color.r + 100,
+				primitives[currentPrimitive].color.g + 100,
+				primitives[currentPrimitive].color.b + 100);
 			glVertex2i(primitives[currentPrimitive].points[primitives[currentPrimitive].currentPoint].x,
 				primitives[currentPrimitive].points[primitives[currentPrimitive].currentPoint].y);
 			glEnd();
 		}
 	}
-	//glPopMatrix();
 	glutSwapBuffers();
 }
 
@@ -138,10 +131,10 @@ void Keyboard(unsigned char key, int x, int y) {
 	if (key == 'w' || key == 'W')
 		for (int i = 0; i < primitives[currentPrimitive].points.size(); i++)
 			primitives[currentPrimitive].points[i].y += 20;
-	if (key == 's' || key == 'S') 
+	if (key == 's' || key == 'S')
 		for (int i = 0; i < primitives[currentPrimitive].points.size(); i++)
 			primitives[currentPrimitive].points[i].y -= 20;
-	if (key == 'd' || key == 'D') 
+	if (key == 'd' || key == 'D')
 		for (int i = 0; i < primitives[currentPrimitive].points.size(); i++)
 			primitives[currentPrimitive].points[i].x += 20;
 	if (key == 'a' || key == 'A')
@@ -161,22 +154,68 @@ void Keyboard(unsigned char key, int x, int y) {
 	//scale down
 	if (key == '[' || key == '{') {
 
-		primitives[currentPrimitive].scale -= 0.1;
+		auto c = primitives[currentPrimitive].points[0];
+
+		for (int i = 0; i < primitives[currentPrimitive].points.size(); ++i) {
+
+			primitives[currentPrimitive].points[i].x -= c.x;
+			primitives[currentPrimitive].points[i].y -= c.y;
+			primitives[currentPrimitive].points[i].x /= 1.2;
+			primitives[currentPrimitive].points[i].y /= 1.2;
+			primitives[currentPrimitive].points[i].x += c.x;
+			primitives[currentPrimitive].points[i].y += c.y;
+		}
 	}
+
 	//scale up
 	if (key == ']' || key == '}') {
 
-		primitives[currentPrimitive].scale += 0.1;
+		auto c = primitives[currentPrimitive].points[0];
+
+		for (int i = 0; i < primitives[currentPrimitive].points.size(); ++i) {
+
+			primitives[currentPrimitive].points[i].x -= c.x;
+			primitives[currentPrimitive].points[i].y -= c.y;
+			primitives[currentPrimitive].points[i].x *= 1.2;
+			primitives[currentPrimitive].points[i].y *= 1.2;
+			primitives[currentPrimitive].points[i].x += c.x;
+			primitives[currentPrimitive].points[i].y += c.y;
+		}
+
 	}
+
 	//angle down
 	if (key == ',' || key == '<') {
 
-		primitives[currentPrimitive].angle -= 5;
+		int x0 = primitives[currentPrimitive].points[0].x;
+		int y0 = primitives[currentPrimitive].points[0].y;
+
+		mat3 rotate1 = translate(rotate(translate(mat3(1.0f), { x0, y0 }), radians(3.0f)), { -x0, -y0 });
+
+		for (int i = 0; i < primitives[currentPrimitive].points.size(); ++i) {
+
+			auto res = rotate1 * vec3(primitives[currentPrimitive].points[i].x,
+				primitives[currentPrimitive].points[i].y, 1);
+			primitives[currentPrimitive].points[i].x = res.x;
+			primitives[currentPrimitive].points[i].y = res.y;
+		}
 	}
+
 	//angle up
 	if (key == '.' || key == '>"') {
 
-		primitives[currentPrimitive].angle += 5;
+		int x0 = primitives[currentPrimitive].points[0].x;
+		int y0 = primitives[currentPrimitive].points[0].y;
+
+		mat3 rotate1 = translate(rotate(translate(mat3(1.0f), { x0, y0 }), radians(-3.0f)), { -x0, -y0 });
+
+		for (int i = 0; i < primitives[currentPrimitive].points.size(); ++i) {
+
+			auto res = rotate1 * vec3(primitives[currentPrimitive].points[i].x,
+				primitives[currentPrimitive].points[i].y, 1);
+			primitives[currentPrimitive].points[i].x = res.x;
+			primitives[currentPrimitive].points[i].y = res.y;
+		}
 	}
 
 	//deleting current primitive
@@ -266,8 +305,7 @@ void menu(int num) {
 
 	switch (num) {
 
-	case 1: Mouse(GLUT_LEFT_BUTTON, GLUT_DOWN, menuPoint.x, menuPoint.y); break;
-	case 2: Keyboard('x', menuPoint.x, menuPoint.y); break;
+
 	case 3: Keyboard('r', menuPoint.x, menuPoint.y); break;
 	case 4: Keyboard('g', menuPoint.x, menuPoint.y); break;
 	case 5: Keyboard('b', menuPoint.x, menuPoint.y); break;
@@ -275,7 +313,23 @@ void menu(int num) {
 	case 7: Keyboard('s', menuPoint.x, menuPoint.y); break;
 	case 8: Keyboard('a', menuPoint.x, menuPoint.y); break;
 	case 9: Keyboard('d', menuPoint.x, menuPoint.y); break;
-	case 10: Keyboard('z', menuPoint.x, menuPoint.y); break;
+	
+	case 11: Keyboard('i', menuPoint.x, menuPoint.y); break;
+	case 12: Keyboard('k', menuPoint.x, menuPoint.y); break;
+	case 13: Keyboard('j', menuPoint.x, menuPoint.y); break;
+	case 14: Keyboard('l', menuPoint.x, menuPoint.y); break;
+	case 15: Keyboard('o', menuPoint.x, menuPoint.y); break;
+	case 16: Keyboard('u', menuPoint.x, menuPoint.y); break;
+	case 17: Keyboard('e', menuPoint.x, menuPoint.y); break;
+	case 18: Keyboard('q', menuPoint.x, menuPoint.y); break;
+	case 19: Keyboard(' ', menuPoint.x, menuPoint.y); break;
+	case 20: Keyboard('z', menuPoint.x, menuPoint.y); break;
+	case 21: Mouse(GLUT_LEFT_BUTTON, GLUT_DOWN, menuPoint.x, menuPoint.y); break;
+	case 22: Keyboard('x', menuPoint.x, menuPoint.y); break;
+	case 23: Keyboard(',', menuPoint.x, menuPoint.y); break;
+	case 24: Keyboard('.', menuPoint.x, menuPoint.y); break;
+	case 25: Keyboard('[', menuPoint.x, menuPoint.y); break;
+	case 26: Keyboard(']', menuPoint.x, menuPoint.y); break;
 	default: break;
 	}
 	glutPostRedisplay();
@@ -284,25 +338,49 @@ void menu(int num) {
 //-------------------------------------------------------------------------------------------
 
 void createMenu() {
+	//submenu "General menu"
+	int generalMenu = glutCreateMenu(menu);
+	glutAddMenuEntry("Next primitive", 17);
+	glutAddMenuEntry("Previous primitive", 18);
 
 	//submenu "Functional menu"
 	int functionalMenu = glutCreateMenu(menu);
-	glutAddMenuEntry("Add point", 1);
-	glutAddMenuEntry("Delete last point", 2);
+	glutAddMenuEntry("Anchor primitive", 19);
+	glutAddMenuEntry("Delete primitive", 20);
+
+	glutAddMenuEntry("Rotate primitive for 3 degree left", 23);
+	glutAddMenuEntry("Rotate primitive for 3 degree right", 24);
+
+	glutAddMenuEntry("Scale primitive for 1.2x down", 25);
+	glutAddMenuEntry("Scale primitive for 1.2x up", 26);
 
 	glutAddMenuEntry("R value +20", 3);
 	glutAddMenuEntry("G value +20", 4);
 	glutAddMenuEntry("B value +20", 5);
 
-	glutAddMenuEntry("Move current set of primitives up for 20 px", 6);
-	glutAddMenuEntry("Move current set of primitives down for 20 px", 7);
-	glutAddMenuEntry("Move current set of primitives left for 20 px", 8);
-	glutAddMenuEntry("Move current set of primitives right for 20 px", 9);
+	glutAddMenuEntry("Move current primitive up for 20 px", 6);
+	glutAddMenuEntry("Move current primitive down for 20 px", 7);
+	glutAddMenuEntry("Move current primitive left for 20 px", 8);
+	glutAddMenuEntry("Move current primitive right for 20 px", 9);
+
+	//submenu "Point menu"
+	int pointMenu = glutCreateMenu(menu);
+	glutAddMenuEntry("Anchor point", 21);
+	glutAddMenuEntry("Delete point", 22);
+
+	glutAddMenuEntry("Next point", 15);
+	glutAddMenuEntry("Previous point", 16);
+
+	glutAddMenuEntry("Move current point up for 20px", 11);
+	glutAddMenuEntry("Move current point down for 20px", 12);
+	glutAddMenuEntry("Move current point left for 20px", 13);
+	glutAddMenuEntry("Move current point right for 20px", 14);
 
 	//menu
 	int mainMenu = glutCreateMenu(menu);
-	glutAddMenuEntry("Delete current set of primitives", 10);
 	glutAddSubMenu("Functional menu", functionalMenu);
+	glutAddSubMenu("General menu", generalMenu);
+	glutAddSubMenu("Point menu", pointMenu);
 
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
