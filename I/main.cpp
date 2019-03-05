@@ -330,6 +330,7 @@ void menu(int num) {
 	case 24: Keyboard('.', menuPoint.x, menuPoint.y); break;
 	case 25: Keyboard('[', menuPoint.x, menuPoint.y); break;
 	case 26: Keyboard(']', menuPoint.x, menuPoint.y); break;
+	case 27: Keyboard('m', menuPoint.x, menuPoint.y); break;
 	default: break;
 	}
 	glutPostRedisplay();
@@ -362,6 +363,8 @@ void createMenu() {
 	glutAddMenuEntry("Move current primitive down for 20 px", 7);
 	glutAddMenuEntry("Move current primitive left for 20 px", 8);
 	glutAddMenuEntry("Move current primitive right for 20 px", 9);
+
+	glutAddMenuEntry("Fill on unfill primitvie", 27);
 
 	//submenu "Point menu"
 	int pointMenu = glutCreateMenu(menu);
