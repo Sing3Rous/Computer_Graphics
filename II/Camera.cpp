@@ -37,7 +37,7 @@ void Camera::set_view_by_mouse(GLint width, GLint height) {
 		currentAngleX = 1.0f;
 		if (lastAngleX != 1.0f) {
 
-			Vector3d axis = vector_normal(view - position, scene);
+			auto axis = vector_normal(view - position, scene);
 			axis = normalization(axis);
 			rotation(1.0f - lastAngleX, axis.x, axis.y, axis.z);
 		}
@@ -46,13 +46,13 @@ void Camera::set_view_by_mouse(GLint width, GLint height) {
 		currentAngleX = -1.0f;
 		if (lastAngleX != -1.0f) {
 
-			Vector3d axis = vector_normal(view - position, scene);
+			auto axis = vector_normal(view - position, scene);
 			axis = normalization(axis);
 			rotation(-1.0f - lastAngleX, axis.x, axis.y, axis.z);
 		}
 	} else {
 
-		Vector3d axis = vector_normal(view - position, scene);
+		auto axis = vector_normal(view - position, scene);
 		axis = normalization(axis);
 		rotation(angleZ, axis.x, axis.y, axis.z);
 	}
@@ -62,7 +62,7 @@ void Camera::set_view_by_mouse(GLint width, GLint height) {
 
 void Camera::move_depth(double speed) {
 
-	Vector3d direction = view - position;
+	auto direction = view - position;
 	auto x = direction.x;
 	auto z = direction.z;
 
@@ -75,7 +75,7 @@ void Camera::move_depth(double speed) {
 
 void Camera::move_horizontal(double speed) {
 
-	Vector3d direction = view - position;
+	auto direction = view - position;
 	auto x = direction.x;
 	auto y = direction.y;
 	auto z = direction.z;
@@ -98,7 +98,7 @@ void Camera::move_vertical(double speed) {
 
 void Camera::rotation(double angle, double x, double y, double z) {
 
-	Vector3d currentDirection = view - position;
+	auto currentDirection = view - position;
 
 	double cosA = (double)cos(angle);
 	double sinA = (double)sin(angle);
@@ -122,7 +122,7 @@ void Camera::rotation(double angle, double x, double y, double z) {
 
 void Camera::rotation_by_point(Vector3d center, double angle, double x, double y, double z) {
 
-	Vector3d axis = position - center;
+	auto axis = position - center;
 
 	double cosA = (double)cos(angle);
 	double sinA = (double)sin(angle);
