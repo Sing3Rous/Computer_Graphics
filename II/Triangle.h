@@ -36,6 +36,8 @@ Triangle transofrm(int section, double angle, Vector3d axis, Vector3d shift) {
 	trngl.first = multCoordinate(shearMatrix, trngl.first);
 	trngl.second = multCoordinate(shearMatrix, trngl.second);
 	trngl.third = multCoordinate(shearMatrix, trngl.third);
+
+	return trngl;
 }
 
 void replication() {
@@ -80,7 +82,7 @@ void replication() {
 
 	double pathLength = 0;
 
-	for (int i = 0; i < replicationPath.size(); ++i) {
+	for (int i = 0; i < replicationPath.size() - 1; ++i) {
 
 		currentPath = replicationPath[i + 1] - replicationPath[i];
 		pathLength += norm(currentPath);
@@ -91,8 +93,8 @@ void replication() {
 		double pointDistance = (pathLength * percents[i]) / 100.0f;
 
 		Vector3d currentPathDirection;
-		double currentLength;
-		double previousLength;
+		double currentLength = 0;
+		double previousLength = 0;
 		bool isFound = false;
 
 		int pathStart;
@@ -187,7 +189,8 @@ void calcSmoothedNormals() {
 	smoothedNormal = (normals[0] + normals[2] + normals[3]) / 3.0;
 	smoothedNormals.push_back(smoothedNormal);
 
-	for (int i = 0, int num = 1; i < figure.size() - 1; ++i, num += 3) {
+	int num = 1;
+	for (int i = 0; i < figure.size() - 1; ++i, num += 3) {
 
 		smoothedNormal = (normals[num] + normals[num + 1] + normals[num + 3] + normals[num + 4]) / 4.0;
 		smoothedNormals.push_back(smoothedNormal);
