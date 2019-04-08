@@ -1,7 +1,12 @@
 ﻿#pragma once
+#define _USE_MATH_DEFINES 
+#include <math.h>
+#include <windows.h>
 #include "glut.h"
 #include "glaux.h"
-#include <cstdio>
+#include <vector>
+#include <gl\gl.h>
+#include <stdio.h>
 #include "Camera.h"
 
 #pragma comment(lib,"glaux.lib")
