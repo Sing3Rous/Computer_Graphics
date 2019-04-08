@@ -1,38 +1,5 @@
 ﻿#include "Triangle.h"
 
-void display(void) {
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_DEPTH_TEST);
-
-	if (isLighting) {
-
-		glEnable(GL_LIGHTING);
-	} else {
-
-		glDisable(GL_LIGHTING);
-	}
-
-	glLoadIdentity();
-	gluLookAt(camera.position.x, camera.position.y, camera.position.z,
-		camera.view.x, camera.view.y, camera.view.z,
-		camera.scene.x, camera.scene.y, camera.scene.z);
-	set_lighting();
-	if (showingGrid) {
-
-		draw_grid();
-	}
-	draw_figure();
-	glTranslatef(camera.view.x, 0, camera.view.z);
-	glDisable(GL_LIGHT0);
-	glDisable(GL_LIGHT1);
-	glDisable(GL_LIGHT2);
-	glDisable(GL_LIGHT3);
-	glDisable(GL_LIGHT4);
-	glDisable(GL_LIGHT5);
-	glutSwapBuffers();
-}
-
 void reshape(GLint w, GLint h) {
 
 	width = w, height = h;
@@ -64,15 +31,125 @@ void reshape(GLint w, GLint h) {
 
 void keyboard(unsigned char key, int x, int y) {
 
+	if (key == 'w' || key == 'W') {
 
+		camera.move_vertical(cameraSpeed);
+	}
+	if (key == 's' || key == 'S') {
+
+		camera.move_vertical(-cameraSpeed);
+	}
+
+	if (key == 'a' || key == 'A') {
+
+		camera.move_horizontal(-cameraSpeed);
+	}
+	if (key == 'd' || key == 'D') {
+
+		camera.move_horizontal(cameraSpeed);
+	}
+	if (key == 'q' || key == 'Q') {
+
+		camera.rotation_by_point(camera.view, -cameraSpeed * 2.0f, 0.0f, 1.0f, 0.0f);
+	}
+	if (key == 'e' || key == 'E') {
+
+		camera.rotation_by_point(camera.view, cameraSpeed * 2.0f, 0.0f, 1.0f, 0.0f);
+	}
+	if (key == 't' || key == 'T') {
+
+		showingTextures = !showingTextures;
+	}
+	if (key == 'g' || key == 'G') {
+
+		showingGrid = !showingGrid;
+	}
+	if (key == 'l' || key == 'L') {
+
+		isLighting = !isLighting;
+	}
+	if (key == 'n' || key == 'N') {
+
+		showingNormals = !showingNormals;
+	}
+	if (key == 'b' || key == 'B') {
+
+		smoothingNormals = !smoothingNormals;
+	}
+	if (key == 'f' || key == 'F') {
+
+		isWireframe = !isWireframe;
+		if (isWireframe) {
+
+			isLighting = false;
+		}
+		else {
+
+			isLighting = true;
+		}
+	}
+	if (key == 'p' || key == 'P') {
+
+		isPerspective = !isPerspective;
+		reshape(width, height);
+	}
+	if (key == 'm' || key == 'M') {
+
+		isMouseRotating = !isMouseRotating;
+	}
+	if (key == '.' || key == '>') {
+
+		if (orthoFactor > 0.1f && !isPerspective) {
+
+			orthoFactor -= 0.05;
+			reshape(width, height);
+		}
+		else {
+
+			if (isPerspective) {
+
+				camera.move_depth(6 * cameraSpeed);
+			}
+		}
+	}
+	if (key == ',' || key == '<') {
+
+		if (orthoFactor < 10 && !isPerspective) {
+
+			orthoFactor += 0.05;
+			reshape(width, height);
+		}
+		else {
+
+			if (isPerspective) {
+
+				camera.move_depth(-6 * cameraSpeed);
+			}
+		}
+	}
 }
 
-void keyboard_special(unsigned char key, int x, int y) {
+void keyboard_special(int key, int x, int y) {
 
+	if (key == GLUT_KEY_UP) {
+		camera.move_vertical(cameraSpeed);
+	}
 
+	if (key == GLUT_KEY_DOWN) {
+		camera.move_vertical(-cameraSpeed);
+	}
+
+	if (key == GLUT_KEY_LEFT) {
+		camera.rotation_by_point(camera.view, -cameraSpeed * 2.0f, 0.0f, 1.0f, 0.0f);
+	}
+
+	if (key == GLUT_KEY_RIGHT) {
+		camera.rotation_by_point(camera.view, cameraSpeed * 2.0f, 0.0f, 1.0f, 0.0f);
+	}
+	glutPostRedisplay();
 }
 
-void mouse(int button, int state, int x, int y) {
+void mouse(int x, int y) {
 
 	if (isMouseRotating) {
 		camera.set_view_by_mouse(width, height);
@@ -718,14 +795,66 @@ void set_lighting() {
 	}
 }
 
+void initialize() {
+
+	set_lighting();
+	camera.set_position(-15.0f, 8.5f, 0.0f, -5.0f, 8.5f, 0.0f, 0.0f, 1.0f, 0.0f);
+	replication();
+	calcNormals();
+	calcSmoothedNormals();
+	loadTexture();
+}
+
+void display(void) {
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_DEPTH_TEST);
+
+	if (isLighting) {
+
+		glEnable(GL_LIGHTING);
+	}
+	else {
+
+		glDisable(GL_LIGHTING);
+	}
+
+	glLoadIdentity();
+	gluLookAt(camera.position.x, camera.position.y, camera.position.z,
+		camera.view.x, camera.view.y, camera.view.z,
+		camera.scene.x, camera.scene.y, camera.scene.z);
+	set_lighting();
+	if (showingGrid) {
+
+		draw_grid();
+	}
+	draw_figure();
+	glTranslatef(camera.view.x, 0, camera.view.z);
+	glDisable(GL_LIGHT0);
+	glDisable(GL_LIGHT1);
+	glDisable(GL_LIGHT2);
+	glDisable(GL_LIGHT3);
+	glDisable(GL_LIGHT4);
+	glDisable(GL_LIGHT5);
+	glutSwapBuffers();
+}
+
 void main(int argc, char *argv[]) {
+
+	width = 1880;
+	height = 990;
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_RGB);
+
+	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowSize(width, height);
-	glutCreateWindow("Draw points");
+	glutCreateWindow("CG II");
+	initialize();
+	glutKeyboardFunc(keyboard);
+	glutSpecialFunc(keyboard_special);
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
-	glutKeyboardFunc(keyboard);
-	glutMouseFunc(mouse);
+	glutIdleFunc(display);
+	glutPassiveMotionFunc(mouse);
 	glutMainLoop();
+	
 }
