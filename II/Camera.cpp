@@ -78,16 +78,15 @@ void Camera::move_horizontal(double speed) {
 	auto direction = view - position;
 	auto x = direction.x;
 	auto y = direction.y;
-	auto z = direction.z;
 
-	x = x * cos(M_PI / 2.) - y * sin(M_PI / 2.);
-	z = y * cos(M_PI / 2.) + x * sin(M_PI / 2.);
+	direction.x = x * cos(M_PI / 2.) - y * sin(M_PI / 2.);
+	direction.z = y * cos(M_PI / 2.) + x * sin(M_PI / 2.);
 
-	position.x += x * speed;
-	position.z += z * speed;
+	position.x += direction.x * speed;
+	position.z += direction.z * speed;
 
-	view.x += x * speed;
-	view.z += z * speed;
+	view.x += direction.x * speed;
+	view.z += direction.z * speed;
 }
 
 void Camera::move_vertical(double speed) {
@@ -105,17 +104,18 @@ void Camera::rotation(double angle, double x, double y, double z) {
 
 	Vector3d direction;
 
-	direction.x = (cosA + (1 - cosA) * x * x) * currentDirection.x;
-	direction.x += (((1 - cosA) * x * y) - (z * sinA)) * currentDirection.y;
-	direction.x += (((1 - cosA) * x * z) + (y * sinA)) * currentDirection.z;
+	direction.x = (cosA + (1 - cosA) * x * x)	* currentDirection.x;
+	direction.x += ((1 - cosA) * x * y - z * sinA) * currentDirection.y;
+	direction.x += ((1 - cosA) * x * z + y * sinA) * currentDirection.z;
 
-	direction.y = (((1 - cosA) * x * y) + (z * sinA)) * currentDirection.x;
-	direction.y += (cosA + (1 - cosA) * y * y) * currentDirection.y;
-	direction.y += (((1 - cosA) * y * z) + (x * sinA)) * currentDirection.z;
+	direction.y = ((1 - cosA) * x * y + z * sinA) * currentDirection.x;
+	direction.y += (cosA + (1 - cosA) * y * y)	* currentDirection.y;
+	direction.y += ((1 - cosA) * y * z - x * sinA) * currentDirection.z;
 
-	direction.z = (((1 - cosA) * x * z) - (y * sinA)) * currentDirection.x;
-	direction.z += (((1 - cosA) * y * z) + (x * sinA)) * currentDirection.y;
-	direction.z += (cosA + (1 - cosA) * z * z) * currentDirection.z;
+
+	direction.z = ((1 - cosA) * x * z - y * sinA) * currentDirection.x;
+	direction.z += ((1 - cosA) * y * z + x * sinA) * currentDirection.y;
+	direction.z += (cosA + (1 - cosA) * z * z)	* currentDirection.z;
 
 	view = position + direction;
 }
@@ -141,5 +141,5 @@ void Camera::rotation_by_point(Vector3d center, double angle, double x, double y
 	direction.z += (((1 - cosA) * y * z) + (x * sinA)) * axis.y;
 	direction.z += (cosA + (1 - cosA) * z * z) * axis.z;
 
-	view = position + direction;
+	position = center + direction;
 }
