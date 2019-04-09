@@ -16,7 +16,7 @@ Vector3d Vector3d::operator + (Vector3d vector) {
 
 Vector3d Vector3d::operator - (Vector3d vector) {
 
-	return Vector3d(vector.x - x, vector.y - y, vector.z - z);
+	return Vector3d(x - vector.x, y - vector.y, z - vector.z);
 }
 
 Vector3d Vector3d::operator * (double number) {
