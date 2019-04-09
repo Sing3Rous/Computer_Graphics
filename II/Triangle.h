@@ -50,16 +50,16 @@ void replication() {
 	fopen_s(&trajectoryFile, "trajectory.txt", "r");
 	fopen_s(&percentsFile, "percents.txt", "r");
 
-	fscanf_s(triangleFile, "%f%f%f", &triangle.first.x, &triangle.first.y, &triangle.first.z);
-	fscanf_s(triangleFile, "%f%f%f", &triangle.second.x, &triangle.second.y, &triangle.second.z);
-	fscanf_s(triangleFile, "%f%f%f", &triangle.third.x, &triangle.third.y, &triangle.third.z);
+	fscanf_s(triangleFile, "%lf%lf%lf", &triangle.first.x, &triangle.first.y, &triangle.first.z);
+	fscanf_s(triangleFile, "%lf%lf%lf", &triangle.second.x, &triangle.second.y, &triangle.second.z);
+	fscanf_s(triangleFile, "%lf%lf%lf", &triangle.third.x, &triangle.third.y, &triangle.third.z);
 	fclose(triangleFile);
 
 	Vector3d coord;
 	double angle;
 	while (!feof(trajectoryFile)) {
 
-		fscanf_s(trajectoryFile, "%f%f%f", &coord.x, &coord.y, &coord.z);
+		fscanf_s(trajectoryFile, "%lf%lf%lf", &coord.x, &coord.y, &coord.z);
 		replicationPath.push_back(coord);
 	}
 	fclose(trajectoryFile);
@@ -68,8 +68,8 @@ void replication() {
 	double percent;
 	while (!feof(percentsFile)) {
 
-		fscanf_s(percentsFile, "%f", &percent);
-		fscanf_s(percentsFile, "%f%f%f", &scale.x, &scale.y, &scale.z);
+		fscanf_s(percentsFile, "%lf", &percent);
+		fscanf_s(percentsFile, "%lf%lf%lf", &scale.x, &scale.y, &scale.z);
 		percents.push_back(percent);
 		sectionScaling.push_back(scale);
 	}
@@ -96,15 +96,17 @@ void replication() {
 		double currentLength = 0;
 		double previousLength = 0;
 		bool isFound = false;
+		int j;
 
 		int pathStart;
 
 		if (i == percents.size() - 1) {
 
 			pathStart = replicationPath.size() - 2;
-		} else {
+		}
+		else {
 
-			for (int j = 0; i < replicationPath.size() - 1, !isFound; ++j) {
+			for (j = 0; i < replicationPath.size() - 1, !isFound; ++j) {
 
 				currentPathDirection = replicationPath[j + 1] - replicationPath[j];
 				currentLength += norm(currentPathDirection);
@@ -112,47 +114,49 @@ void replication() {
 				if (pointDistance >= previousLength && pointDistance <= currentLength) {
 
 					isFound = true;
-				} else {
+				}
+				else {
 
 					previousLength = currentLength;
 				}
-
-				pathStart = j - 1;
 			}
-			currentPath = replicationPath[pathStart + 1] - replicationPath[pathStart];
-
-			double localLength = pointDistance - previousLength;
-			if (i == percents.size() - 1) {
-
-				localLength = norm(currentPath);
-			}
-			double currentPathNorm = norm(currentPath);
-
-			Vector3d shift = Vector3d(replicationPath[pathStart].x + (localLength * currentPath.x) / currentPathNorm,
-				replicationPath[pathStart].y + (localLength * currentPath.y) / currentPathNorm,
-				replicationPath[pathStart].z + (localLength * currentPath.z) / currentPathNorm);
-
-			axis = vector_normal(currentPath, previousPath);
-
-			angle = acos(scalar_product(currentPath, previousPath) / (norm(currentPath) * norm(previousPath)))
-				* 180.0 / M_PI;
-
-			if (scalar_product(currentPath, previousPath) < 0) {
-				
-				angle = 180 - angle;
-			} else {
-
-				angle = -(180 + angle);
-			}
-
-			if (angle == 180) {
-
-				angle = 0;
-			}
-
-			trngl = transofrm(i, angle, axis, shift);
-			figure.push_back(trngl);
+			pathStart = j - 1;
 		}
+		currentPath = replicationPath[pathStart + 1] - replicationPath[pathStart];
+
+		double localLength = pointDistance - previousLength;
+		if (i == percents.size() - 1) {
+
+			localLength = norm(currentPath);
+		}
+		double currentPathNorm = norm(currentPath);
+
+		Vector3d shift = Vector3d(replicationPath[pathStart].x + (localLength * currentPath.x) / currentPathNorm,
+			replicationPath[pathStart].y + (localLength * currentPath.y) / currentPathNorm,
+			replicationPath[pathStart].z + (localLength * currentPath.z) / currentPathNorm);
+
+
+		axis = vector_normal(currentPath, previousPath);
+
+		angle = acos(scalar_product(currentPath, previousPath) / (norm(currentPath) * norm(previousPath)))
+			* 180.0 / M_PI;
+
+		if (scalar_product(currentPath, previousPath) < 0) {
+
+			angle = 180 - angle;
+		}
+		else {
+
+			angle = -(180 + angle);
+		}
+
+		if (angle == 180) {
+
+			angle = 0;
+		}
+
+		trngl = transofrm(i, angle, axis, shift);
+		figure.push_back(trngl);
 	}
 }
 
@@ -174,7 +178,7 @@ void calcNormals() {
 	}
 
 	normal = vertex_normal(figure[figure.size() - 1].first, figure[figure.size() - 1].third,
-		figure[figure.size()].second);
+		figure[figure.size() - 1].second);
 	normals.push_back(normal);
 }
 
@@ -190,7 +194,7 @@ void calcSmoothedNormals() {
 	smoothedNormals.push_back(smoothedNormal);
 
 	int num = 1;
-	for (int i = 0; i < figure.size() - 1; ++i, num += 3) {
+	for (int i = 1; i < figure.size() - 1; ++i, num += 3) {
 
 		smoothedNormal = (normals[num] + normals[num + 1] + normals[num + 3] + normals[num + 4]) / 4.0;
 		smoothedNormals.push_back(smoothedNormal);
