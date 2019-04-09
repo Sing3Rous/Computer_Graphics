@@ -33,11 +33,11 @@ void keyboard(unsigned char key, int x, int y) {
 
 	if (key == 'w' || key == 'W') {
 
-		camera.move_vertical(cameraSpeed);
+		camera.move_depth(cameraSpeed);
 	}
 	if (key == 's' || key == 'S') {
 
-		camera.move_vertical(-cameraSpeed);
+		camera.move_depth(-cameraSpeed);
 	}
 
 	if (key == 'a' || key == 'A') {
@@ -108,7 +108,7 @@ void keyboard(unsigned char key, int x, int y) {
 
 			if (isPerspective) {
 
-				camera.move_depth(6 * cameraSpeed);
+				camera.move_vertical(6 * cameraSpeed);
 			}
 		}
 	}
@@ -123,10 +123,16 @@ void keyboard(unsigned char key, int x, int y) {
 
 			if (isPerspective) {
 
-				camera.move_depth(-6 * cameraSpeed);
+				camera.move_vertical(-6 * cameraSpeed);
 			}
 		}
 	}
+	if (key == '1') lightType = DIRECTIONAL_LIGHT;
+	if (key == '2') lightType = POINT_LIGHT;
+	if (key == '3') lightType = POINT_LIGHT_INTENSIVE;
+	if (key == '4') lightType = SPOTLIGHT;
+	if (key == '5') lightType = SPOTLIGHT_INTENSIVE;
+	if (key == '6') lightType = POINT_LIGHT2;
 }
 
 void keyboard_special(int key, int x, int y) {
