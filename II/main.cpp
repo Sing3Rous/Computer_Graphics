@@ -39,7 +39,6 @@ void keyboard(unsigned char key, int x, int y) {
 
 		camera.move_depth(-cameraSpeed);
 	}
-
 	if (key == 'a' || key == 'A') {
 
 		camera.move_horizontal(-cameraSpeed);
@@ -48,11 +47,11 @@ void keyboard(unsigned char key, int x, int y) {
 
 		camera.move_horizontal(cameraSpeed);
 	}
-	if (key == 'q' || key == 'Q') {
+	if (key == 'e' || key == 'E') {
 
 		camera.rotation_by_point(camera.view, -cameraSpeed * 2.0f, 0.0f, 1.0f, 0.0f);
 	}
-	if (key == 'e' || key == 'E') {
+	if (key == 'q' || key == 'Q') {
 
 		camera.rotation_by_point(camera.view, cameraSpeed * 2.0f, 0.0f, 1.0f, 0.0f);
 	}
@@ -96,6 +95,14 @@ void keyboard(unsigned char key, int x, int y) {
 	if (key == 'm' || key == 'M') {
 
 		isMouseRotating = !isMouseRotating;
+		if (isMouseRotating) {
+
+			glutSetCursor(GLUT_CURSOR_NONE);
+		}
+		else {
+
+			glutSetCursor(GLUT_CURSOR_LEFT_ARROW);
+		}
 	}
 	if (key == '.' || key == '>') {
 
