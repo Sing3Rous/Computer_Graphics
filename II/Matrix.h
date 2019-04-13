@@ -35,17 +35,17 @@ void initializeRotationMatrix(double angle, Vector3d axis) {
 	double sinA = (double)sin(angle * M_PI / 180.0);
 	Vector3d normalizedAxis = normalization(axis);
 
-	rotationMatrix[0][0] = cosA + (1 - cosA)*normalizedAxis.x*normalizedAxis.x;
-	rotationMatrix[0][1] = (1 - cosA)*normalizedAxis.x*normalizedAxis.y - sinA * normalizedAxis.z;
-	rotationMatrix[0][2] = (1 - cosA)*normalizedAxis.x*normalizedAxis.z + sinA * normalizedAxis.y;
+	rotationMatrix[0][0] = cosA + (1 - cosA) * normalizedAxis.x * normalizedAxis.x;
+	rotationMatrix[0][1] = (1 - cosA) * normalizedAxis.x * normalizedAxis.y - sinA * normalizedAxis.z;
+	rotationMatrix[0][2] = (1 - cosA) * normalizedAxis.x * normalizedAxis.z + sinA * normalizedAxis.y;
 	rotationMatrix[0][3] = 0;
-	rotationMatrix[1][0] = (1 - cosA)*normalizedAxis.x*normalizedAxis.y + sinA * normalizedAxis.z;
-	rotationMatrix[1][1] = cosA + (1 - cosA)*normalizedAxis.y*normalizedAxis.y;
-	rotationMatrix[1][2] = (1 - cosA)*normalizedAxis.z*normalizedAxis.y - sinA * normalizedAxis.x;
+	rotationMatrix[1][0] = (1 - cosA) * normalizedAxis.x * normalizedAxis.y + sinA * normalizedAxis.z;
+	rotationMatrix[1][1] = cosA + (1 - cosA) * normalizedAxis.y * normalizedAxis.y;
+	rotationMatrix[1][2] = (1 - cosA) * normalizedAxis.z * normalizedAxis.y - sinA * normalizedAxis.x;
 	rotationMatrix[1][3] = 0;
-	rotationMatrix[2][0] = (1 - cosA)*normalizedAxis.x*normalizedAxis.z - sinA * normalizedAxis.y;
-	rotationMatrix[2][1] = (1 - cosA)*normalizedAxis.z*normalizedAxis.y + sinA * normalizedAxis.x;
-	rotationMatrix[2][2] = cosA + (1 - cosA)*normalizedAxis.z*normalizedAxis.z;
+	rotationMatrix[2][0] = (1 - cosA) * normalizedAxis.x * normalizedAxis.z - sinA * normalizedAxis.y;
+	rotationMatrix[2][1] = (1 - cosA) * normalizedAxis.z * normalizedAxis.y + sinA * normalizedAxis.x;
+	rotationMatrix[2][2] = cosA + (1 - cosA) * normalizedAxis.z * normalizedAxis.z;
 	rotationMatrix[2][3] = 0;
 	rotationMatrix[3][0] = 0;
 	rotationMatrix[3][1] = 0;
