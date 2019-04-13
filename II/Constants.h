@@ -54,29 +54,11 @@ unsigned int textureNames[10];
 void loadTexture() {
 
 	AUX_RGBImageRec *image1 = auxDIBImageLoad(L"textures\\1.bmp");
-	/*AUX_RGBImageRec *image2 = auxDIBImageLoad(L"textures\\2.bmp");
-	AUX_RGBImageRec *image3 = auxDIBImageLoad(L"textures\\3.bmp");
-	AUX_RGBImageRec *image4 = auxDIBImageLoad(L"textures\\4.bmp");
-	AUX_RGBImageRec *image5 = auxDIBImageLoad(L"textures\\5.bmp");
-	AUX_RGBImageRec *image6 = auxDIBImageLoad(L"textures\\6.bmp");*/
-	AUX_RGBImageRec *image7 = auxDIBImageLoad(L"textures\\7.bmp");
-	/*AUX_RGBImageRec *image8 = auxDIBImageLoad(L"textures\\8.bmp");*/
-	glGenTextures(2, textureNames); //создание имен текстур
+	AUX_RGBImageRec *image2 = auxDIBImageLoad(L"textures\\2.bmp");
+	glGenTextures(2, textureNames);
 
 	glBindTexture(GL_TEXTURE_2D, textureNames[1]);
 	gluBuild2DMipmaps(GL_TEXTURE_2D, 3, image1->sizeX, image1->sizeY, GL_RGB, GL_UNSIGNED_BYTE, image1->data);
-	//glBindTexture(GL_TEXTURE_2D, textureNames[1]);
-	//gluBuild2DMipmaps(GL_TEXTURE_2D, 3, image2->sizeX, image2->sizeY, GL_RGB, GL_UNSIGNED_BYTE, image2->data);
-	//glBindTexture(GL_TEXTURE_2D, textureNames[2]);
-	//gluBuild2DMipmaps(GL_TEXTURE_2D, 3, image3->sizeX, image3->sizeY, GL_RGB, GL_UNSIGNED_BYTE, image3->data);
-	//glBindTexture(GL_TEXTURE_2D, textureNames[3]);
-	//gluBuild2DMipmaps(GL_TEXTURE_2D, 3, image4->sizeX, image4->sizeY, GL_RGB, GL_UNSIGNED_BYTE, image4->data);
-	//glBindTexture(GL_TEXTURE_2D, textureNames[4]);
-	//gluBuild2DMipmaps(GL_TEXTURE_2D, 3, image5->sizeX, image5->sizeY, GL_RGB, GL_UNSIGNED_BYTE, image5->data);
-	//glBindTexture(GL_TEXTURE_2D, textureNames[5]);
-	//gluBuild2DMipmaps(GL_TEXTURE_2D, 3, image6->sizeX, image6->sizeY, GL_RGB, GL_UNSIGNED_BYTE, image6->data);
 	glBindTexture(GL_TEXTURE_2D, textureNames[0]);
-	gluBuild2DMipmaps(GL_TEXTURE_2D, 3, image7->sizeX, image7->sizeY, GL_RGB, GL_UNSIGNED_BYTE, image7->data);
-	//glBindTexture(GL_TEXTURE_2D, textureNames[7]);
-	//gluBuild2DMipmaps(GL_TEXTURE_2D, 3, image8->sizeX, image8->sizeY, GL_RGB, GL_UNSIGNED_BYTE, image8->data);
+	gluBuild2DMipmaps(GL_TEXTURE_2D, 3, image2->sizeX, image2->sizeY, GL_RGB, GL_UNSIGNED_BYTE, image2->data);
 }
