@@ -47,7 +47,7 @@ double norm(Vector3d vec) {
 
 Vector3d normalization(Vector3d vec) {
 
-	return vec / norm(vec);
+	return (vec / norm(vec));
 }
 
 double scalar_product(Vector3d vec1, Vector3d vec2) {
