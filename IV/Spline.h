@@ -178,7 +178,7 @@ public:
 
 		do {
 
-			h = 0.01;
+			h = 1e-3;
 			glVertex2f(x1, f(a[0], b[0], c[0], x1 - x));
 			x1 += h;
 			glVertex2f(x1, f(a[0], b[0], c[0], x1 - x));
@@ -187,7 +187,7 @@ public:
 
 		for (i = 1; i < num - 1; i++) {
 
-			h = 0.01;
+			h = 1e-3;
 			x1 = (points[i].x + points[i - 1].x) / 2;
 			x = (points[i + 1].x + points[i].x) / 2;
 			do {
@@ -218,7 +218,7 @@ public:
 
 		do {
 
-			h = 0.01;
+			h = 1e-3;
 			glVertex2f(x1, f1(b[0], c[0], x1 - x));
 			x1 += h;
 			glVertex2f(x1, f1(b[0], c[0], x1 - x));
@@ -227,7 +227,7 @@ public:
 
 		for (i = 1; i < num - 1; i++) {
 
-			h = 0.01;
+			h = 1e-3;
 			x1 = (points[i].x + points[i - 1].x) / 2;
 			x = (points[i + 1].x + points[i].x) / 2;
 			do {
